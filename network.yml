@@ -14,8 +14,13 @@ Resources:
           Value: template-vpc
 
 
-  ############### Subnet, RouteTable, InternetGateway ###############
-  ## アプリ用のプライベートサブネット
+  # -----------------------------------------------------------------
+  # サブネット, ルートテーブル, インターネットゲートウェイの構築
+  # -----------------------------------------------------------------
+  
+  # -----------------------------------------------------------------
+  # アプリ用のプライベートサブネット
+  # -----------------------------------------------------------------
   templateSubnetPrivateApp3A:
     Type: AWS::EC2::Subnet
     Properties:
@@ -48,7 +53,9 @@ Resources:
           Value: template-subnet-private-app-3c
         - Key: Type
           Value: Isolated
-  ## アプリ用のルートテーブル
+  # -----------------------------------------------------------------
+  # アプリ用のルートテーブル
+  # -----------------------------------------------------------------
   templateRouteApp:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -57,7 +64,9 @@ Resources:
       Tags:
         - Key: Name
           Value: template-route-app
-  ## アプリネットへルート紐付け
+  # -----------------------------------------------------------------
+  # アプリネットへルート紐付け
+  # -----------------------------------------------------------------
   templateRouteAppAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -73,8 +82,9 @@ Resources:
       SubnetId:
         Ref: templateSubnetPrivateApp3C
 
-  # DB周りの設定
-  ## DB用のプライベートサブネット
+  # -----------------------------------------------------------------
+  # DB用のプライベートサブネット
+  # -----------------------------------------------------------------
   templateSubnetPrivateDb3A:
     Type: AWS::EC2::Subnet
     Properties:
@@ -107,7 +117,9 @@ Resources:
           Value: template-subnet-private-db-3c
         - Key: Type
           Value: Isolated
-  ## DB用のルートテーブル
+  # -----------------------------------------------------------------
+  # DB用のルートテーブル
+  # -----------------------------------------------------------------
   templateRouteDb:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -116,7 +128,9 @@ Resources:
       Tags:
         - Key: Name
           Value: template-route-db
-  ## DBサブネットへルート紐付け
+  # -----------------------------------------------------------------
+  # DBサブネットへルート紐付け
+  # -----------------------------------------------------------------
   templateRouteDbAssociation3A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -132,8 +146,9 @@ Resources:
       SubnetId:
         Ref: templateSubnetPrivateDb3C
 
-  # Ingress周りの設定
-  ## Ingress用のパブリックサブネット
+  # -----------------------------------------------------------------
+  # Ingress用のパブリックサブネット
+  # -----------------------------------------------------------------
   templateSubnetPublicIngress3A:
     Type: AWS::EC2::Subnet
     Properties:
@@ -166,7 +181,9 @@ Resources:
           Value: template-subnet-public-ingress-3c
         - Key: Type
           Value: Public
-  ## Ingress用のルートテーブル
+  # -----------------------------------------------------------------
+  # Ingress用のルートテーブル
+  # -----------------------------------------------------------------
   templateRouteIngress:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -175,7 +192,9 @@ Resources:
       Tags:
         - Key: Name
           Value: template-route-ingress
-  ## Ingressサブネットへルート紐付け
+  # -----------------------------------------------------------------
+  # Ingressサブネットへルート紐付け
+  # -----------------------------------------------------------------
   templateRouteIngressAssociation3A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -190,7 +209,9 @@ Resources:
         Ref: templateRouteIngress
       SubnetId:
         Ref: templateSubnetPublicIngress3C
-  ## Ingress用ルートテーブルのデフォルトルート
+  # -----------------------------------------------------------------
+  # Ingress用ルートテーブルのデフォルトルート
+  # -----------------------------------------------------------------
   templateRouteIngressDefault:
     Type: AWS::EC2::Route
     Properties:
@@ -202,8 +223,9 @@ Resources:
     DependsOn:
       - templateVpcgwAttachment
 
-  # 管理用サーバ周りの設定
-  ## 管理用のパブリックサブネット
+  # -----------------------------------------------------------------
+  # 管理用のパブリックサブネット
+  # -----------------------------------------------------------------
   templateSubnetPublicManagement3A:
     Type: AWS::EC2::Subnet
     Properties:
@@ -236,7 +258,9 @@ Resources:
           Value: template-subnet-public-management-3c
         - Key: Type
           Value: Public
-  ## 管理用サブネットのルートはIngressと同様として作成する
+  # -----------------------------------------------------------------
+  # 管理用サブネットのルートはIngressと同様として作成する
+  # -----------------------------------------------------------------
   templateRouteManagementAssociation3A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -252,7 +276,9 @@ Resources:
       SubnetId:
         Ref: templateSubnetPublicManagement3C
 
+  # -----------------------------------------------------------------
   # インターネットへ通信するためのゲートウェイの作成
+  # -----------------------------------------------------------------
   templateIgw:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -267,9 +293,13 @@ Resources:
       InternetGatewayId:
         Ref: templateIgw
 
-  ############### Security groups ###############
-  # セキュリティグループの生成
-  ## インターネット公開のセキュリティグループの生成
+
+  # -----------------------------------------------------------------
+  # セキュリティーグループの作成
+  # -----------------------------------------------------------------
+  # -----------------------------------------------------------------
+  # インターネット公開のセキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgIngress:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -295,7 +325,9 @@ Resources:
           Value: template-sg-ingress
       VpcId:
         Ref: templateVpc
-  ## 管理用サーバ向けのセキュリティグループの生成
+  # -----------------------------------------------------------------
+  # 管理用サーバ向けのセキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgManagement:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -310,7 +342,9 @@ Resources:
           Value: template-sg-management
       VpcId:
         Ref: templateVpc
-  ## バックエンドアプリ用セキュリティグループの生成
+  # -----------------------------------------------------------------
+  # バックエンドアプリ用セキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgBackApp:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -325,7 +359,9 @@ Resources:
           Value: template-sg-back-app
       VpcId:
         Ref: templateVpc
-  ## フロントエンドコンテナアプリ用セキュリティグループの生成
+  # -----------------------------------------------------------------
+  # フロントエンドコンテナアプリ用セキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgFrontApp:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -340,7 +376,9 @@ Resources:
           Value: template-sg-front-app
       VpcId:
         Ref: templateVpc
-  ## 内部用ロードバランサ用のセキュリティグループの生成
+  # -----------------------------------------------------------------
+  # 内部用ロードバランサ用のセキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgInternal:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -355,7 +393,9 @@ Resources:
           Value: template-sg-internal
       VpcId:
         Ref: templateVpc
-  ## DB用セキュリティグループの生成
+  # -----------------------------------------------------------------
+  # DB用セキュリティグループの生成
+  # -----------------------------------------------------------------
   templateSgDb:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -371,8 +411,13 @@ Resources:
       VpcId:
         Ref: templateVpc
 
-  # ルール紐付け
-  ## Internet LB -> Front App
+  # -----------------------------------------------------------------
+  # セキュリティーグループのルールを紐付け
+  # -----------------------------------------------------------------
+  # -----------------------------------------------------------------
+  # インターネット側のロードバランサー ---> フロントエンドアプリ
+  # Internet LB -> Front App
+  # -----------------------------------------------------------------
   templateSgFrontAppFromsSgIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -388,7 +433,10 @@ Resources:
           - templateSgIngress
           - GroupId
       ToPort: 80
-  ## Front App -> Internal LB
+  # -----------------------------------------------------------------
+  # フロントエンドアプリ ---> 内部ロードバランサー
+  # Front App -> Internal LB
+  # -----------------------------------------------------------------
   templateSgInternalFromSgFrontApp:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -404,7 +452,10 @@ Resources:
           - templateSgFrontApp
           - GroupId
       ToPort: 80
-  ## Internal LB -> Back App
+  # -----------------------------------------------------------------
+  # 内部ロードバランサー ---> バックエンドアプリ
+  # Internal LB -> Back App
+  # -----------------------------------------------------------------
   templateSgBackAppFromSgInternal:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -419,8 +470,11 @@ Resources:
         Fn::GetAtt:
           - templateSgInternal
           - GroupId
-      ToPort: 80      
-  ## Back App -> DB
+      ToPort: 80
+  # -----------------------------------------------------------------
+  # バックエンドアプリ ---> データベース
+  # Back App -> DB
+  # -----------------------------------------------------------------
   templateSgDbFromSgBackAppTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -436,7 +490,10 @@ Resources:
           - templateSgBackApp
           - GroupId
       ToPort: 3306
-  ## Front App -> DB
+  # -----------------------------------------------------------------
+  # フロントエンドアプリ ---> データベース
+  # Front App -> DB
+  # -----------------------------------------------------------------
   templateSgDbFromSgFrontAppTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -452,7 +509,10 @@ Resources:
           - templateSgFrontApp
           - GroupId
       ToPort: 3306
-  ## Management server -> DB
+  # -----------------------------------------------------------------
+  # マネージメント ---> データベース
+  # Management server -> DB
+  # -----------------------------------------------------------------
   templateSgDbFromSgManagementTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -467,8 +527,11 @@ Resources:
         Fn::GetAtt:
           - templateSgManagement
           - GroupId
-      ToPort: 3306  
-  ## Management server -> Internal LB
+      ToPort: 3306
+  # -----------------------------------------------------------------
+  # マネージメント ---> 内部ロードバランサー
+  # Management server -> Internal LB
+  # -----------------------------------------------------------------
   templateSgInternalFromSgManagementTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
