@@ -1,0 +1,486 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Template
+Resources:
+  # VPCの設定
+  templateVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: template-vpc
+
+
+  ############### Subnet, RouteTable, InternetGateway ###############
+  ## アプリ用のプライベートサブネット
+  templateSubnetPrivateApp3A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.8.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-app-3a
+        - Key: Type
+          Value: Isolated
+  templateSubnetPrivateApp3C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.9.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-app-3c
+        - Key: Type
+          Value: Isolated
+  ## アプリ用のルートテーブル
+  templateRouteApp:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: templateVpc
+      Tags:
+        - Key: Name
+          Value: template-route-app
+  ## アプリネットへルート紐付け
+  templateRouteAppAssociation1A:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteApp
+      SubnetId:
+        Ref: templateSubnetPrivateApp3A
+  templateRouteAppAssociation1C:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteApp
+      SubnetId:
+        Ref: templateSubnetPrivateApp3C
+
+  # DB周りの設定
+  ## DB用のプライベートサブネット
+  templateSubnetPrivateDb3A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.16.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-db-3a
+        - Key: Type
+          Value: Isolated
+  templateSubnetPrivateDb3C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.17.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-db-3c
+        - Key: Type
+          Value: Isolated
+  ## DB用のルートテーブル
+  templateRouteDb:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: templateVpc
+      Tags:
+        - Key: Name
+          Value: template-route-db
+  ## DBサブネットへルート紐付け
+  templateRouteDbAssociation3A:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteDb
+      SubnetId:
+        Ref: templateSubnetPrivateDb3A
+  templateRouteDbAssociation3C:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteDb
+      SubnetId:
+        Ref: templateSubnetPrivateDb3C
+
+  # Ingress周りの設定
+  ## Ingress用のパブリックサブネット
+  templateSubnetPublicIngress3A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: template-subnet-public-ingress-3a
+        - Key: Type
+          Value: Public
+  templateSubnetPublicIngress3C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: template-subnet-public-ingress-3c
+        - Key: Type
+          Value: Public
+  ## Ingress用のルートテーブル
+  templateRouteIngress:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: templateVpc
+      Tags:
+        - Key: Name
+          Value: template-route-ingress
+  ## Ingressサブネットへルート紐付け
+  templateRouteIngressAssociation3A:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteIngress
+      SubnetId:
+        Ref: templateSubnetPublicIngress3A
+  templateRouteIngressAssociation3C:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteIngress
+      SubnetId:
+        Ref: templateSubnetPublicIngress3C
+  ## Ingress用ルートテーブルのデフォルトルート
+  templateRouteIngressDefault:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: templateRouteIngress
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: templateIgw
+    DependsOn:
+      - templateVpcgwAttachment
+
+  # 管理用サーバ周りの設定
+  ## 管理用のパブリックサブネット
+  templateSubnetPublicManagement3A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.240.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: template-subnet-public-management-3a
+        - Key: Type
+          Value: Public
+  templateSubnetPublicManagement3C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.241.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: template-subnet-public-management-3c
+        - Key: Type
+          Value: Public
+  ## 管理用サブネットのルートはIngressと同様として作成する
+  templateRouteManagementAssociation3A:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteIngress
+      SubnetId:
+        Ref: templateSubnetPublicManagement3A
+  sbcntrRouteManagementAssociation1C:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: templateRouteIngress
+      SubnetId:
+        Ref: templateSubnetPublicManagement3C
+
+  # インターネットへ通信するためのゲートウェイの作成
+  templateIgw:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: template-igw
+  templateVpcgwAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: templateVpc
+      InternetGatewayId:
+        Ref: templateIgw
+
+  ############### Security groups ###############
+  # セキュリティグループの生成
+  ## インターネット公開のセキュリティグループの生成
+  templateSgIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ingress
+      GroupName: ingress
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: from 0.0.0.0/0:80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIpv6: ::/0
+          Description: from ::/0:80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: template-sg-ingress
+      VpcId:
+        Ref: templateVpc
+  ## 管理用サーバ向けのセキュリティグループの生成
+  templateSgManagement:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group of management server
+      GroupName: management
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: template-sg-management
+      VpcId:
+        Ref: templateVpc
+  ## バックエンドアプリ用セキュリティグループの生成
+  templateSgBackApp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group of backend app
+      GroupName: back-app
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: template-sg-back-app
+      VpcId:
+        Ref: templateVpc
+  ## フロントエンドコンテナアプリ用セキュリティグループの生成
+  templateSgFrontApp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group of frontend app
+      GroupName: front-app
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: template-sg-front-app
+      VpcId:
+        Ref: templateVpc
+  ## 内部用ロードバランサ用のセキュリティグループの生成
+  templateSgInternal:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for internal load balancer
+      GroupName: internal
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: template-sg-internal
+      VpcId:
+        Ref: templateVpc
+  ## DB用セキュリティグループの生成
+  templateSgDb:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group of database
+      GroupName: database
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: template-sg-db
+      VpcId:
+        Ref: templateVpc
+
+  # ルール紐付け
+  ## Internet LB -> Front App
+  templateSgFrontAppFromsSgIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTP for Ingress
+      FromPort: 80
+      GroupId:
+        Fn::GetAtt:
+          - templateSgFrontApp
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgIngress
+          - GroupId
+      ToPort: 80
+  ## Front App -> Internal LB
+  templateSgInternalFromSgFrontApp:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTP for front container
+      FromPort: 80
+      GroupId:
+        Fn::GetAtt:
+          - templateSgInternal
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgFrontApp
+          - GroupId
+      ToPort: 80
+  ## Internal LB -> Back App
+  templateSgBackAppFromSgInternal:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTP for internal lb
+      FromPort: 80
+      GroupId:
+        Fn::GetAtt:
+          - templateSgBackApp
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgInternal
+          - GroupId
+      ToPort: 80      
+  ## Back App -> DB
+  templateSgDbFromSgBackAppTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: MySQL protocol from backend App
+      FromPort: 3306
+      GroupId:
+        Fn::GetAtt:
+          - templateSgDb
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgBackApp
+          - GroupId
+      ToPort: 3306
+  ## Front App -> DB
+  templateSgDbFromSgFrontAppTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: MySQL protocol from frontend App
+      FromPort: 3306
+      GroupId:
+        Fn::GetAtt:
+          - templateSgDb
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgFrontApp
+          - GroupId
+      ToPort: 3306
+  ## Management server -> DB
+  templateSgDbFromSgManagementTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: MySQL protocol from management server
+      FromPort: 3306
+      GroupId:
+        Fn::GetAtt:
+          - templateSgDb
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgManagement
+          - GroupId
+      ToPort: 3306  
+  ## Management server -> Internal LB
+  templateSgInternalFromSgManagementTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTP for management server
+      FromPort: 80
+      GroupId:
+        Fn::GetAtt:
+          - templateSgInternal
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgManagement
+          - GroupId
+      ToPort: 80
