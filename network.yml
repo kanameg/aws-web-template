@@ -383,35 +383,35 @@ Resources:
   # -----------------------------------------------------------------
   # バックエンドアプリ用セキュリティグループの生成
   # -----------------------------------------------------------------
-  templateSgBackApp:
+  templateSgBackend:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security Group of backend app
-      GroupName: back-app
+      GroupName: backend-app
       SecurityGroupEgress:
         - CidrIp: 0.0.0.0/0
           Description: Allow all outbound traffic by default
           IpProtocol: "-1"
       Tags:
         - Key: Name
-          Value: template-sg-back-app
+          Value: template-sg-backend-app
       VpcId:
         Ref: templateVpc
   # -----------------------------------------------------------------
   # フロントエンドコンテナアプリ用セキュリティグループの生成
   # -----------------------------------------------------------------
-  templateSgFrontApp:
+  templateSgFrontend:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security Group of frontend app
-      GroupName: front-app
+      GroupName: frontend-app
       SecurityGroupEgress:
         - CidrIp: 0.0.0.0/0
           Description: Allow all outbound traffic by default
           IpProtocol: "-1"
       Tags:
         - Key: Name
-          Value: template-sg-front-app
+          Value: template-sg-frontend-app
       VpcId:
         Ref: templateVpc
   # -----------------------------------------------------------------
@@ -451,7 +451,7 @@ Resources:
   # -----------------------------------------------------------------
   # VPCエンドポイント用セキュリティグループの生成
   # -----------------------------------------------------------------
-  temapleSgEgress:
+  templateSgEgress:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security Group of VPC Endpoint
@@ -473,7 +473,7 @@ Resources:
   # インターネット側のロードバランサー ---> フロントエンドアプリ
   # Internet LB -> Front App
   # -----------------------------------------------------------------
-  templateSgFrontAppFromsSgIngress:
+  templateSgFrontendFromsSgIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
@@ -481,7 +481,7 @@ Resources:
       FromPort: 80
       GroupId:
         Fn::GetAtt:
-          - templateSgFrontApp
+          - templateSgFrontend
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
@@ -492,7 +492,7 @@ Resources:
   # フロントエンドアプリ ---> 内部ロードバランサー
   # Front App -> Internal LB
   # -----------------------------------------------------------------
-  templateSgInternalFromSgFrontApp:
+  templateSgInternalFromSgFrontend:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
@@ -504,14 +504,14 @@ Resources:
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
-          - templateSgFrontApp
+          - templateSgFrontend
           - GroupId
       ToPort: 80
   # -----------------------------------------------------------------
   # 内部ロードバランサー ---> バックエンドアプリ
   # Internal LB -> Back App
   # -----------------------------------------------------------------
-  templateSgBackAppFromSgInternal:
+  templateSgBackendFromSgInternal:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
@@ -519,7 +519,7 @@ Resources:
       FromPort: 80
       GroupId:
         Fn::GetAtt:
-          - templateSgBackApp
+          - templateSgBackend
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
@@ -530,7 +530,7 @@ Resources:
   # バックエンドアプリ ---> データベース
   # Back App -> DB
   # -----------------------------------------------------------------
-  templateSgDbFromSgBackAppTCP:
+  templateSgDbFromSgBackendTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
@@ -542,14 +542,14 @@ Resources:
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
-          - templateSgBackApp
+          - templateSgBackend
           - GroupId
       ToPort: 3306
   # -----------------------------------------------------------------
   # フロントエンドアプリ ---> データベース
   # Front App -> DB
   # -----------------------------------------------------------------
-  templateSgDbFromSgFrontAppTCP:
+  templateSgDbFromSgFrontendTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
@@ -561,7 +561,7 @@ Resources:
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
-          - templateSgFrontApp
+          - templateSgFrontend
           - GroupId
       ToPort: 3306
   # -----------------------------------------------------------------
@@ -606,11 +606,11 @@ Resources:
   # バックエンドアプリ ---> VPCエンドポイント
   # Back container -> VPC endpoint
   # -----------------------------------------------------------------
-  templaeSgVpceFromSgBackAppTCP:
+  templaeSgVpceFromSgBackendTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
-      Description: HTTPS for Container App
+      Description: HTTPS for Backend App
       FromPort: 443
       GroupId:
         Fn::GetAtt:
@@ -618,18 +618,18 @@ Resources:
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
-          - templateSgBackApp
+          - templateSgBackend
           - GroupId
       ToPort: 443
   # -----------------------------------------------------------------
   # フロントエンドアプリ ---> VPCエンドポイント
   # Front End -> VPC endpoint
   # -----------------------------------------------------------------
-  temapleSgVpceFromSgFrontAppTCP:
+  temapleSgVpceFromSgFrontendTCP:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       IpProtocol: tcp
-      Description: HTTPS for Front Container App
+      Description: HTTPS for Frontend App
       FromPort: 443
       GroupId:
         Fn::GetAtt:
@@ -637,7 +637,7 @@ Resources:
           - GroupId
       SourceSecurityGroupId:
         Fn::GetAtt:
-          - templateSgFrontApp
+          - templateSgFrontend
           - GroupId
       ToPort: 443
   # -----------------------------------------------------------------
