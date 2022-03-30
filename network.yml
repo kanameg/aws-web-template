@@ -293,6 +293,44 @@ Resources:
       InternetGatewayId:
         Ref: templateIgw
 
+  # -----------------------------------------------------------------
+  # VPCエンドポイント周りの設定
+  # -----------------------------------------------------------------
+  # -----------------------------------------------------------------
+  # VPCエンドポイント(Egress通信)用のプライベートサブネット
+  # -----------------------------------------------------------------
+  templateSubnetPrivateEgress3A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.248.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-egress-3a
+        - Key: Type
+          Value: Isolated
+  templateSubnetPrivateEgress3C:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.249.0/24
+      VpcId:
+        Ref: templateVpc
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: template-subnet-private-egress-3c
+        - Key: Type
+          Value: Isolated
 
   # -----------------------------------------------------------------
   # セキュリティーグループの作成
@@ -408,6 +446,23 @@ Resources:
       Tags:
         - Key: Name
           Value: template-sg-db
+      VpcId:
+        Ref: templateVpc
+  # -----------------------------------------------------------------
+  # VPCエンドポイント用セキュリティグループの生成
+  # -----------------------------------------------------------------
+  temapleSgEgress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group of VPC Endpoint
+      GroupName: egress
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      Tags:
+        - Key: Name
+          Value: temaple-sg-vpce
       VpcId:
         Ref: templateVpc
 
@@ -547,3 +602,61 @@ Resources:
           - templateSgManagement
           - GroupId
       ToPort: 80
+  # -----------------------------------------------------------------
+  # バックエンドアプリ ---> VPCエンドポイント
+  # Back container -> VPC endpoint
+  # -----------------------------------------------------------------
+  templaeSgVpceFromSgBackAppTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTPS for Container App
+      FromPort: 443
+      GroupId:
+        Fn::GetAtt:
+          - templateSgEgress
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgBackApp
+          - GroupId
+      ToPort: 443
+  # -----------------------------------------------------------------
+  # フロントエンドアプリ ---> VPCエンドポイント
+  # Front End -> VPC endpoint
+  # -----------------------------------------------------------------
+  temapleSgVpceFromSgFrontAppTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTPS for Front Container App
+      FromPort: 443
+      GroupId:
+        Fn::GetAtt:
+          - templateSgEgress
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgFrontApp
+          - GroupId
+      ToPort: 443
+  # -----------------------------------------------------------------
+  # マネージメント ---> VPCエンドポイント
+  # Management Server -> VPC endpoint
+  # -----------------------------------------------------------------
+  templateSgVpceFromSgManagementTCP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: HTTPS for management server
+      FromPort: 443
+      GroupId:
+        Fn::GetAtt:
+          - templateSgEgress
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - templateSgManagement
+          - GroupId
+      ToPort: 443
+      
