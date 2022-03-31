@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: VPC Endpoint Template
+
+# -----------------------------------------------------------------
+# 入力パラメータ
+# -----------------------------------------------------------------
+Parameters:
+  # VPC ID
+  VpcId:
+    Description : "VPC ID"
+    Type: AWS::EC2::VPC::Id
+  # サブネットID 1つ目
+  SubnetId1:
+    Description : "Interface 1st Subnet"
+    Type : AWS::EC2::Subnet::Id
+  # サブネットID 2つ目
+  SubnetId2:
+    Description : "Interface 2nd Subnet"
+    Type : AWS::EC2::Subnet::Id
+  # セキュリティーグループID
+  SecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  # -----------------------------------------------------------------
+  # ECR API用のエンドポイントを作成
+  # -----------------------------------------------------------------
+  tempalteEcrApiEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .ecr.api
+      VpcId: !Ref 'VpcId'
+      SubnetIds:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+      VpcEndpointType: Interface
+      SecurityGroupIds:
+        - !Ref SecurityGroupId
+      PrivateDnsEnabled: true
+
+  # -----------------------------------------------------------------
+  # ECR Docker用のエンドポイントを作成
+  # -----------------------------------------------------------------
+  tempalteEcrApiEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .ecr.dkr
+      VpcId: !Ref 'VpcId'
+      SubnetIds:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+      VpcEndpointType: Interface
+      SecurityGroupIds:
+        - !Ref SecurityGroupId
+      PrivateDnsEnabled: true
