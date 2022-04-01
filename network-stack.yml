@@ -21,7 +21,7 @@ Resources:
   # -----------------------------------------------------------------
   # アプリ用のプライベートサブネット
   # -----------------------------------------------------------------
-  templateSubnetPrivateApp3A:
+  templateSubnetPrivateApp1A:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.8.0/24
@@ -34,10 +34,10 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-app-3a
+          Value: template-subnet-private-app-1a
         - Key: Type
           Value: Isolated
-  templateSubnetPrivateApp3C:
+  templateSubnetPrivateApp1C:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.9.0/24
@@ -50,7 +50,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-app-3c
+          Value: template-subnet-private-app-1c
         - Key: Type
           Value: Isolated
   # -----------------------------------------------------------------
@@ -73,19 +73,19 @@ Resources:
       RouteTableId:
         Ref: templateRouteApp
       SubnetId:
-        Ref: templateSubnetPrivateApp3A
+        Ref: templateSubnetPrivateApp1A
   templateRouteAppAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteApp
       SubnetId:
-        Ref: templateSubnetPrivateApp3C
+        Ref: templateSubnetPrivateApp1C
 
   # -----------------------------------------------------------------
   # DB用のプライベートサブネット
   # -----------------------------------------------------------------
-  templateSubnetPrivateDb3A:
+  templateSubnetPrivateDb1A:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.16.0/24
@@ -98,10 +98,10 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-db-3a
+          Value: template-subnet-private-db-1a
         - Key: Type
           Value: Isolated
-  templateSubnetPrivateDb3C:
+  templateSubnetPrivateDb1C:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.17.0/24
@@ -114,7 +114,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-db-3c
+          Value: template-subnet-private-db-1c
         - Key: Type
           Value: Isolated
   # -----------------------------------------------------------------
@@ -131,25 +131,25 @@ Resources:
   # -----------------------------------------------------------------
   # DBサブネットへルート紐付け
   # -----------------------------------------------------------------
-  templateRouteDbAssociation3A:
+  templateRouteDbAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteDb
       SubnetId:
-        Ref: templateSubnetPrivateDb3A
-  templateRouteDbAssociation3C:
+        Ref: templateSubnetPrivateDb1A
+  templateRouteDbAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteDb
       SubnetId:
-        Ref: templateSubnetPrivateDb3C
+        Ref: templateSubnetPrivateDb1C
 
   # -----------------------------------------------------------------
   # Ingress用のパブリックサブネット
   # -----------------------------------------------------------------
-  templateSubnetPublicIngress3A:
+  templateSubnetPublicIngress1A:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.0.0/24
@@ -162,10 +162,10 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: template-subnet-public-ingress-3a
+          Value: template-subnet-public-ingress-1a
         - Key: Type
           Value: Public
-  templateSubnetPublicIngress3C:
+  templateSubnetPublicIngress1C:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.1.0/24
@@ -178,7 +178,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: template-subnet-public-ingress-3c
+          Value: template-subnet-public-ingress-1c
         - Key: Type
           Value: Public
   # -----------------------------------------------------------------
@@ -195,20 +195,20 @@ Resources:
   # -----------------------------------------------------------------
   # Ingressサブネットへルート紐付け
   # -----------------------------------------------------------------
-  templateRouteIngressAssociation3A:
+  templateRouteIngressAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteIngress
       SubnetId:
-        Ref: templateSubnetPublicIngress3A
-  templateRouteIngressAssociation3C:
+        Ref: templateSubnetPublicIngress1A
+  templateRouteIngressAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteIngress
       SubnetId:
-        Ref: templateSubnetPublicIngress3C
+        Ref: templateSubnetPublicIngress1C
   # -----------------------------------------------------------------
   # Ingress用ルートテーブルのデフォルトルート
   # -----------------------------------------------------------------
@@ -226,7 +226,7 @@ Resources:
   # -----------------------------------------------------------------
   # 管理用のパブリックサブネット
   # -----------------------------------------------------------------
-  templateSubnetPublicManagement3A:
+  templateSubnetPublicManagement1A:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.240.0/24
@@ -239,10 +239,10 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: template-subnet-public-management-3a
+          Value: template-subnet-public-management-1a
         - Key: Type
           Value: Public
-  templateSubnetPublicManagement3C:
+  templateSubnetPublicManagement1C:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.241.0/24
@@ -255,26 +255,26 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: template-subnet-public-management-3c
+          Value: template-subnet-public-management-1c
         - Key: Type
           Value: Public
   # -----------------------------------------------------------------
   # 管理用サブネットのルートはIngressと同様として作成する
   # -----------------------------------------------------------------
-  templateRouteManagementAssociation3A:
+  templateRouteManagementAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteIngress
       SubnetId:
-        Ref: templateSubnetPublicManagement3A
+        Ref: templateSubnetPublicManagement1A
   sbcntrRouteManagementAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
         Ref: templateRouteIngress
       SubnetId:
-        Ref: templateSubnetPublicManagement3C
+        Ref: templateSubnetPublicManagement1C
 
   # -----------------------------------------------------------------
   # インターネットへ通信するためのゲートウェイの作成
@@ -299,7 +299,7 @@ Resources:
   # -----------------------------------------------------------------
   # VPCエンドポイント(Egress通信)用のプライベートサブネット
   # -----------------------------------------------------------------
-  templateSubnetPrivateEgress3A:
+  templateSubnetPrivateEgress1A:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.248.0/24
@@ -312,10 +312,10 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-egress-3a
+          Value: template-subnet-private-egress-1a
         - Key: Type
           Value: Isolated
-  templateSubnetPrivateEgress3C:
+  templateSubnetPrivateEgress1C:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.249.0/24
@@ -328,7 +328,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: template-subnet-private-egress-3c
+          Value: template-subnet-private-egress-1c
         - Key: Type
           Value: Isolated
 
