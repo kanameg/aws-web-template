@@ -45,7 +45,27 @@ Resources:
   # -----------------------------------------------------------------
   # ECR Docker用のエンドポイントを作成
   # -----------------------------------------------------------------
-  tempalteEcrApiEndpoint:
+  tempalteEcrDockerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .ecr.dkr
+      VpcId: !Ref 'VpcId'
+      SubnetIds:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+      VpcEndpointType: Interface
+      SecurityGroupIds:
+        - !Ref SecurityGroupId
+      PrivateDnsEnabled: true
+
+  # -----------------------------------------------------------------
+  # S3アクセス用のエンドポイントを作成
+  # -----------------------------------------------------------------
+  tempalteEcrDockerEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       ServiceName: !Join
