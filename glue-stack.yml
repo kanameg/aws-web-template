@@ -54,16 +54,23 @@ Resources:
       Roles:
         - !Ref templateGlueJobRole
 
-  #GlueJob:
-  #  Type: AWS::Glue::Job
-  #  Properties:
-  #    Name: Template Glue Job
-  #    Description: "Template Glue Job"
-  #    GlueVersion: "3.0"
-  #    Command:
-  #      Name: glueetl
-  #      PythonVersion: "3"
-  #      ScriptLocation: !Sub 's3://${S3BucketName}/script/${JobScriptName}.py'
-  #    NumberOfWorkers: 2
-  #    WorkerType: G.1X
-  #    DefaultArguments: "job-bookmark-enable"
+  # -----------------------------------------------------------------
+  # Glue Job
+  # -----------------------------------------------------------------
+  templateGlueJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: template-glue-job
+      Description: "Template Glue Job"
+      Role: !Ref templateGlueJobRole
+      GlueVersion: "3.0"
+      Command:
+        Name: glueetl
+        PythonVersion: "3"
+        ScriptLocation: !Sub 's3://${S3BucketName}/scripts/glue-job.py'
+      NumberOfWorkers: 2
+      WorkerType: G.1X
+      DefaultArguments: 
+        --job-bookmark-option: job-bookmark-enable
+        --job-language: python
+
