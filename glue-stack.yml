@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS Glue Template
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: Data S3 Bucket Name
+  #JobScriptName:
+  #  Type: String
+  #  Description: Job Script File Name
+
+Resources:
+  # -----------------------------------------------------------------
+  # Glue Job用のロール
+  # -----------------------------------------------------------------
+  templateGlueJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: template-glue-job-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+
+  # -----------------------------------------------------------------
+  # S3へのアクセスポリシー
+  # -----------------------------------------------------------------
+  templateS3AccessPolicy:
+    DependsOn:
+      - templateGlueJobRole
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: tmplate-access-s3-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${S3BucketName}/*
+          - Effect: "Allow"
+            Action:
+              - s3:ListBucket
+            Resource: !Sub arn:aws:s3:::${S3BucketName}
+      Roles:
+        - !Ref templateGlueJobRole
+
+  #GlueJob:
+  #  Type: AWS::Glue::Job
+  #  Properties:
+  #    Name: Template Glue Job
+  #    Description: "Template Glue Job"
+  #    GlueVersion: "3.0"
+  #    Command:
+  #      Name: glueetl
+  #      PythonVersion: "3"
+  #      ScriptLocation: !Sub 's3://${S3BucketName}/script/${JobScriptName}.py'
+  #    NumberOfWorkers: 2
+  #    WorkerType: G.1X
+  #    DefaultArguments: "job-bookmark-enable"
