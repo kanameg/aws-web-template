@@ -61,3 +61,23 @@ Resources:
       SecurityGroupIds:
         - !Ref SecurityGroupId
       PrivateDnsEnabled: true
+
+  # -----------------------------------------------------------------
+  # CloudWatch Log用のエンドポイントを作成
+  # -----------------------------------------------------------------
+  tempalteCloudWatchLogEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .logs
+      VpcId: !Ref 'VpcId'
+      SubnetIds:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+      VpcEndpointType: Interface
+      SecurityGroupIds:
+        - !Ref SecurityGroupId
+      PrivateDnsEnabled: true
