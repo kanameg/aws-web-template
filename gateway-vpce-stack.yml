@@ -14,9 +14,9 @@ Parameters:
     Description : "Gateway 1st Route Table ID"
     Type : String
   # ルートテーブルID 2つ目
-  RouteTableId2:
-    Description : "Gateway 2nd Route Table ID"
-    Type : String
+  #RouteTableId2:
+  #  Description : "Gateway 2nd Route Table ID"
+  #  Type : String
 
 Resources:
   # -----------------------------------------------------------------
@@ -33,13 +33,4 @@ Resources:
       VpcId: !Ref 'VpcId'
       RouteTableIds:
         - !Ref RouteTableId1
-        - !Ref RouteTableId2
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal: '*'
-            Action:
-              - 's3:GetObject'
-            Resource:
-              - 'arn:aws:s3:::examplebucket/*'
+        #- !Ref RouteTableId2
