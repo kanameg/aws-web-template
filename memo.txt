@@ -1,0 +1,9 @@
+AWS Glue実行結果
+
+データ量 9.83GB
+Type    DPUs        Execution              Start-up
+G1.X    2 DPUs      13 minutes 27 seconds   7 seconds
+G1.X    4 DPUs      5 minutes 19 seconds    6 seconds
+G1.X    5 DPUs      4 minutes 12 seconds    7 secondsｓ
+G1.X    10 DPUs     2 minutes 38 seconds    15 seconds
+G1.X    20 DPUs     2 minutes 26 seconds    30 seconds
