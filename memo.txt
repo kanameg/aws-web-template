@@ -1,6 +1,6 @@
 AWS Glue実行結果
 
-データ量 9.83GB
+128ファイル トータルデータ量 9.83GBのCSVファイルをParquetファイルに変換
 Type    DPUs        Execution              Start-up
 G1.X    2 DPUs      13 minutes 27 seconds   7 seconds
 G1.X    4 DPUs      5 minutes 19 seconds    6 seconds

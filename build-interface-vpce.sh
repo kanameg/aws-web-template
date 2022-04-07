@@ -7,6 +7,6 @@ SECURITYGROUPID=sg-013629a65574c7aaf
 
 aws cloudformation create-stack \
 --stack-name tempalte-interface-vpce \
---template-body file://interface-vpce-stack.yml \
+--template-body file://./interface-vpce-stack.yml \
 --parameters ParameterKey=VpcId,ParameterValue=${VPCID} ParameterKey=SubnetId1,ParameterValue=${SUBNETID1} \
 ParameterKey=SubnetId2,ParameterValue=${SUBNETID2} ParameterKey=SecurityGroupId,ParameterValue=${SECURITYGROUPID}
