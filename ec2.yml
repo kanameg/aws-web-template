@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS EC2 Template
+
+Parameters:
+# EC2Instance
+  AmiId:
+    Description: AMI Image ID
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  InstanceType:
+    Description: EC2 Instance Type
+    Type: String
+    Default: t2.micro
+  KeyPair:
+    Description: Key Pair.
+    Type: "AWS::EC2::KeyPair::KeyName"
+  InstanceName:
+    Description: Instance Name
+    Type: String
+    Default: template-ec2
+  SubnetId:
+    Description: Subnet Id
+    Type: AWS::EC2::Subnet::Id
+
+# SecurityGroup
+  VpcId:
+    Description: VPC ID.
+    Type: AWS::EC2::VPC::Id
+  SshAllowedIp:
+    Description: IP address you want to access with SSH. e.g. 0.0.0.0/0
+    Type: String
+    Default: "0.0.0.0/0"
+
+Resources:
+  templateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyPair
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          GroupSet: 
+            - !Ref templateSecurityGroup
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+      Tags: 
+        - Key: Name
+          Value: !Sub ${InstanceName}
+
+  templateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      VpcId: !Ref VpcId
+      GroupDescription: !Sub Security Group attached to ${InstanceName}
+      GroupName: !Sub sg_${InstanceName}
+      SecurityGroupIngress:
+        -   CidrIp: !Ref SshAllowedIp
+            Description: SSH Port
+            FromPort: 22
+            IpProtocol: tcp
+            ToPort: 22
