@@ -1,0 +1,70 @@
+# ---------------------------------------------------------
+# EC2編 基本構成
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS EC2 Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  # -----------------------------------------------------------------
+  # システム
+  # -----------------------------------------------------------------
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  # -----------------------------------------------------------------
+  # EC2 パラメータ
+  # -----------------------------------------------------------------
+  AmiId:
+    Description: AMI Image ID
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  InstanceType:
+    Description: EC2 Instance Type
+    Type: String
+    Default: t2.micro
+  KeyPair:
+    Description: Key Pair
+    Type: "AWS::EC2::KeyPair::KeyName"
+  InstanceName:
+    Description: Instance Name
+    Type: String
+    Default: base
+  SubnetId:
+    Description: Subnet Id
+    Type: AWS::EC2::Subnet::Id
+  SecurityGroupId:
+    Description: Security Group Id
+    Type: AWS::EC2::SecurityGroup::Id
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyPair
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          GroupSet:
+            - !Ref SecurityGroupId
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+      Tags: 
+        - Key: Name
+          Value: !Sub ${System}-ec2-${InstanceName}
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  Ec2InstanceId:
+    Value: !Ref Ec2Instance
+    Description: EC2 Instance ID
+    
