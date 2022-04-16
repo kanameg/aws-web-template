@@ -13,5 +13,3 @@ aws cloudformation delete-stack \
 # スタックの削除待ち
 aws cloudformation wait stack-delete-complete \
 --stack-name ${STACKNAME}
-
-

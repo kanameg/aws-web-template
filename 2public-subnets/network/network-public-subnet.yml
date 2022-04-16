@@ -12,6 +12,10 @@ Parameters:
     Description: System Name
     Type: String
     Default: template
+  Function:
+    Description: Function Name
+    Type: String
+    Default: public
   VpcId:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
@@ -27,6 +31,9 @@ Parameters:
     Type: String
     Default: 10.0.0.0/24
 
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
 Resources:
   # -----------------------------------------------------------------
   # パブリックサブネット作成
@@ -43,7 +50,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub ${System}-subnet-public-${AvailabilityZoneNo}
+          Value: !Sub ${System}-subnet-${Function}-${AvailabilityZoneNo}
         - Key: Type
           Value: Public
 
@@ -57,7 +64,7 @@ Resources:
         !Ref VpcId
       Tags:
         - Key: Name
-          Value: !Sub ${System}-route-table-${AvailabilityZoneNo}
+          Value: !Sub ${System}-rtb-{Function}-${AvailabilityZoneNo}
 
   # -----------------------------------------------------------------
   # サブネットへルート紐付け
@@ -82,6 +89,9 @@ Resources:
       GatewayId:
         !Ref InternetGatewayId
 
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
 Outputs:
   PublicSubnetId:
     Value: !Ref PublicSubnet
