@@ -23,6 +23,11 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-public-subnet.yml
 
+  NatGatewayTemplateUrl:
+    Description: Public Subnet template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-nat-gateway.yml
+
 # ---------------------------------------------------------
 # リソース
 # ---------------------------------------------------------
@@ -78,3 +83,16 @@ Resources:
         AvailabilityZoneNo: 1
         CidrBlock: 10.0.16.0/20
     DependsOn: InternetGateway
+
+  # ----------------------------------
+  # NATゲートウェイ1 作成
+  # ----------------------------------
+  NatGateway1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref NatGatewayTemplateUrl
+      Parameters: 
+        System: template
+        AvailabilityZoneNo: 1
+        SubnetId: !GetAtt PublicSubnet1.Outputs.PublicSubnetId
+    DependsOn: PublicSubnet1
