@@ -1,0 +1,53 @@
+# ---------------------------------------------------------
+# ネットワーク編 セキュリティグループ
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Security Group Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  Function:
+    Description: Function Name
+    Type: String
+    Default: ""
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+  AllowedIp:
+    Description: Allowed address to access
+    Type: String
+    Default: 0.0.0.0/0
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  # -------------------------------------------------------
+  # セキュリティグループを作成
+  # -------------------------------------------------------
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      VpcId: !Ref VpcId
+      GroupDescription: !Sub Security Group attached to ${Function}
+      GroupName: !Sub ${System}-sg-${Function}
+      SecurityGroupIngress:
+        -   CidrIp: !Ref AllowedIp
+            Description: SSH Port
+            FromPort: 22
+            IpProtocol: tcp
+            ToPort: 22
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  SecurityGroupId:
+    Value: !Ref SecurityGroup
+    Description: Security Group ID

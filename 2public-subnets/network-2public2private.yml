@@ -33,6 +33,11 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-private-subnet.yml
 
+  SecurityGroupTemplateUrl:
+    Description: Security Group template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-security-group.yml
+
 
 # ---------------------------------------------------------
 # リソース
@@ -145,3 +150,17 @@ Resources:
         CidrBlock: 10.0.80.0/20
         NatGatewayId: !GetAtt NatGateway2.Outputs.NatGatewayId
     DependsOn: NatGateway2
+
+  # ----------------------------------
+  # 踏み台用セキュリティグループ 作成
+  # ----------------------------------
+  BasionSecurityGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupTemplateUrl
+      Parameters: 
+        System: template
+        Function: basion
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        AllowedIp: 0.0.0.0/0
+    DependsOn: PrivateSubnet1

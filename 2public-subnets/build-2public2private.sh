@@ -10,6 +10,7 @@ aws s3 cp network/network-public-subnet.yml ${S3URL}network/
 aws s3 cp network/network-internet-gateway.yml ${S3URL}network/
 aws s3 cp network/network-nat-gateway.yml ${S3URL}network/
 aws s3 cp network/network-private-subnet.yml ${S3URL}network/
+aws s3 cp network/network-scurity-group.yml ${S3URL}network/
 
 # スタックの作成
 aws cloudformation create-stack \
