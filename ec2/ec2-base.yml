@@ -51,7 +51,7 @@ Resources:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyPair
       NetworkInterfaces:
-        - AssociatePublicIpAddress: true
+        - AssociatePublicIpAddress: false
           GroupSet:
             - !Ref SecurityGroupId
           DeviceIndex: 0
