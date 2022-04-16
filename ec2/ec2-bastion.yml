@@ -29,7 +29,7 @@ Parameters:
   InstanceName:
     Description: Instance Name
     Type: String
-    Default: basion
+    Default: bastion
   SubnetId:
     Description: Subnet Id
     Type: AWS::EC2::Subnet::Id

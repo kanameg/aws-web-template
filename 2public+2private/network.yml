@@ -12,7 +12,7 @@ Parameters:
     Description: System Name
     Type: String
     Default: template
-    
+
   VpcTemplateUrl:
     Description: VPC template URL
     Type: String
@@ -159,13 +159,13 @@ Resources:
   # ----------------------------------
   # 踏み台用セキュリティグループ 作成
   # ----------------------------------
-  BasionSecurityGroup:
+  BastionSecurityGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref SecurityGroupTemplateUrl
       Parameters: 
         System: template
-        Function: basion
+        Function: bastion
         VpcId: !GetAtt VPC.Outputs.VpcId
         AllowedIp: 0.0.0.0/0
     DependsOn: PrivateSubnet1
