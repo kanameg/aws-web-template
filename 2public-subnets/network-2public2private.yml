@@ -1,0 +1,111 @@
+# ---------------------------------------------------------
+# パブリック x2 ネットワーク構成
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Public x2 Network
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  VpcTemplateUrl:
+    Description: VPC template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-vpc.yml
+
+  InternetGatewayTemplateUrl:
+    Description: Internet Gateway template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-internet-gateway.yml
+
+  PublicSubnetTemplateUrl:
+    Description: Public Subnet template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-public-subnet.yml
+
+  NatGatewayTemplateUrl:
+    Description: Public Subnet template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-nat-gateway.yml
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  # ----------------------------------
+  # VPC 作成
+  # ----------------------------------
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref VpcTemplateUrl
+      Parameters:
+        System: template
+
+  # ----------------------------------
+  # インターネットゲートウェイ 作成
+  # ----------------------------------
+  InternetGateway:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref InternetGatewayTemplateUrl
+      Parameters: 
+        System: template
+        VpcId: !GetAtt VPC.Outputs.VpcId
+    DependsOn: VPC
+
+  # ----------------------------------
+  # パブリックサブネット1 作成
+  # ----------------------------------
+  PublicSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref PublicSubnetTemplateUrl
+      Parameters: 
+        System: template
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        InternetGatewayId: !GetAtt InternetGateway.Outputs.InternetGatewayId
+        AvailabilityZoneNo: 0
+        CidrBlock: 10.0.0.0/20
+    DependsOn: InternetGateway
+
+  # ----------------------------------
+  # パブリックサブネット2 作成
+  # ----------------------------------
+  PublicSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref PublicSubnetTemplateUrl
+      Parameters: 
+        System: template
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        InternetGatewayId: !GetAtt InternetGateway.Outputs.InternetGatewayId
+        AvailabilityZoneNo: 1
+        CidrBlock: 10.0.16.0/20
+    DependsOn: InternetGateway
+
+  # ----------------------------------
+  # NATゲートウェイ1 作成
+  # ----------------------------------
+  NatGateway1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref NatGatewayTemplateUrl
+      Parameters: 
+        System: template
+        AvailabilityZoneNo: 0
+        SubnetId: !GetAtt PublicSubnet1.Outputs.PublicSubnetId
+    DependsOn: PublicSubnet1
+
+  # ----------------------------------
+  # NATゲートウェイ2 作成
+  # ----------------------------------
+  NatGateway2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref NatGatewayTemplateUrl
+      Parameters: 
+        System: template
+        AvailabilityZoneNo: 1
+        SubnetId: !GetAtt PublicSubnet2.Outputs.PublicSubnetId
+    DependsOn: PublicSubnet2
