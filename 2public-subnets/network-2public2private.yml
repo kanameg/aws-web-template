@@ -91,34 +91,6 @@ Resources:
     DependsOn: InternetGateway
 
   # ----------------------------------
-  # プライベートサブネット1 作成
-  # ----------------------------------
-  PrivateSubnet1:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Ref PrivateSubnetTemplateUrl
-      Parameters: 
-        System: template
-        VpcId: !GetAtt VPC.Outputs.VpcId
-        # NatGatewayId: !GetAtt NatGateway1.Outputs.NatGatewayId
-        AvailabilityZoneNo: 0
-        CidrBlock: 10.0.64.0/20
-
-  # ----------------------------------
-  # プライベートサブネット2 作成
-  # ----------------------------------
-  PrivateSubnet2:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Ref PrivateSubnetTemplateUrl
-      Parameters: 
-        System: template
-        VpcId: !GetAtt VPC.Outputs.VpcId
-        # NatGatewayId: !GetAtt NatGateway2.Outputs.NatGatewayId
-        AvailabilityZoneNo: 1
-        CidrBlock: 10.0.80.0/20
-
-  # ----------------------------------
   # NATゲートウェイ1 作成
   # ----------------------------------
   NatGateway1:
@@ -144,32 +116,32 @@ Resources:
         SubnetId: !GetAtt PublicSubnet2.Outputs.PublicSubnetId
     DependsOn: PublicSubnet2
 
-  # # ----------------------------------
-  # # プライベートサブネット1 作成
-  # # ----------------------------------
-  # PrivateSubnet1:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Ref PrivateSubnetTemplateUrl
-  #     Parameters: 
-  #       System: template
-  #       VpcId: !GetAtt VPC.Outputs.VpcId
-  #       # NatGatewayId: !GetAtt NatGateway1.Outputs.NatGatewayId
-  #       AvailabilityZoneNo: 0
-  #       CidrBlock: 10.0.64.0/20
-  #   DependsOn: NatGateway1
+  # ----------------------------------
+  # プライベートサブネット1 作成
+  # ----------------------------------
+  PrivateSubnet1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref PrivateSubnetTemplateUrl
+      Parameters: 
+        System: template
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        AvailabilityZoneNo: 0
+        CidrBlock: 10.0.64.0/20
+        NatGatewayId: !GetAtt NatGateway1.Outputs.NatGatewayId
+    DependsOn: NatGateway1
 
-  # # ----------------------------------
-  # # プライベートサブネット2 作成
-  # # ----------------------------------
-  # PrivateSubnet2:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Ref PrivateSubnetTemplateUrl
-  #     Parameters: 
-  #       System: template
-  #       VpcId: !GetAtt VPC.Outputs.VpcId
-  #       # NatGatewayId: !GetAtt NatGateway2.Outputs.NatGatewayId
-  #       AvailabilityZoneNo: 1
-  #       CidrBlock: 10.0.80.0/20
-  #   DependsOn: NatGateway2
+  # ----------------------------------
+  # プライベートサブネット2 作成
+  # ----------------------------------
+  PrivateSubnet2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref PrivateSubnetTemplateUrl
+      Parameters: 
+        System: template
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        AvailabilityZoneNo: 1
+        CidrBlock: 10.0.80.0/20
+        NatGatewayId: !GetAtt NatGateway2.Outputs.NatGatewayId
+    DependsOn: NatGateway2

@@ -19,9 +19,6 @@ Parameters:
   VpcId:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
-  # InternetGatewayId:
-  #   Description: Internet Gateway ID
-  #   Type: String
   AvailabilityZoneNo:
     Description: Aveilability Zone Number
     Type: Number
@@ -30,6 +27,9 @@ Parameters:
     Description: CIDR Block
     Type: String
     Default: 10.0.0.0/24
+  NatGatewayId:
+    Description: Nat Gateway ID
+    Type: String
 
 # ---------------------------------------------------------
 # リソース
@@ -77,17 +77,17 @@ Resources:
       SubnetId:
         Ref: PrivateSubnet
 
-  # # -----------------------------------------------------------------
-  # # ルートテーブルのデフォルトルート
-  # # -----------------------------------------------------------------
-  # DefaultRouteTable:
-  #   Type: AWS::EC2::Route
-  #   Properties:
-  #     RouteTableId:
-  #       Ref: RouteTable
-  #     DestinationCidrBlock: 0.0.0.0/0
-  #     GatewayId:
-  #       !Ref InternetGatewayId
+  # -----------------------------------------------------------------
+  # ルートテーブルのデフォルトルート
+  # -----------------------------------------------------------------
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        !Ref NatGatewayId
 
 # ---------------------------------------------------------
 # アウトプット
