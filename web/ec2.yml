@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS EC2 Template
+
+Parameters:
+  # OSのイメージタイプ
+  AmiId:
+    Description: AMI Image ID
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  # インスタンスタイプ
+  InstanceType:
+    Description: EC2 Instance Type
+    Type: String
+    Default: "t2.micro"
+  # キーペア
+  KeyPair:
+    Description: Key Pair.
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: "template-keypair"
+  # インスタンス名
+  InstanceName:
+    Description: Instance Name
+    Type: String
+    Default: "template-ec2"
+  # サブネットID
+  SubnetId:
+    Description: Subnet Id
+    Type: AWS::EC2::Subnet::Id
+  # セキュリティグループ
+  SecurityGroupId:
+    Description: SecurityGroup Id
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  templateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyPair
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          GroupSet: 
+            - !Ref SecurityGroupId
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+      Tags: 
+        - Key: Name
+          Value: !Sub ${InstanceName}

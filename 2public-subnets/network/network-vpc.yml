@@ -1,0 +1,41 @@
+# ---------------------------------------------------------
+# ネットワーク編 VPC
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network VPC Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  CidrBlock:
+    Description: CIDR Block
+    Type: String
+    Default: 10.0.0.0/16
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref CidrBlock
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Sub ${System}-vpc
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  VpcId:
+    Value: !Ref Vpc
+    Description: VPC ID

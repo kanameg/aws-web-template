@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Private Subnet Template
+
+Parameters:
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+  RouteTableId:
+    Description: Route Table ID
+    Type: AWS::EC2::RouteTable
+  CidrBlock:
+    Description: CIDR Block
+    Type: String
+    Default: 10.0.0.0/24
+  AvailabilityZone:
+    Description: Availability Zone
+    Type: AWS::EC2::AvailabilityZone::Name
+  SubnetName:
+    Description: Subnet Name
+    Type: String
+    Default: template-subnet-private-a
+
+Resources:
+  # -----------------------------------------------------------------
+  # サブネット, ルートテーブル, インターネットゲートウェイの構築
+  # -----------------------------------------------------------------  
+  # -----------------------------------------------------------------
+  # プライベートサブネット
+  # -----------------------------------------------------------------
+  templateSubnetPrivate:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref CidrBlock
+      VpcId:
+        !Ref VpcId
+      AvailabilityZone: !Ref AvailabilityZone
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Ref SubnetName
+        - Key: Type
+          Value: Private
+
+  # -----------------------------------------------------------------
+  # サブネットへルート紐付け
+  # -----------------------------------------------------------------
+  templateRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: Ref! RouteTableId
+      SubnetId:
+        Ref: templateSubnetPrivate
+
+Outputs:
+  PublicSubnetId:
+    Value: !Ref templateSubnetPrivate
+    Description: Private Subnet ID

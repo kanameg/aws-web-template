@@ -1,0 +1,46 @@
+# ---------------------------------------------------------
+# ネットワーク編 インターネットゲートウェイ
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Internet Gateway Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  # -------------------------------------------------------
+  # インターネットへ通信するためのゲートウェイの作成
+  # -------------------------------------------------------
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${System}-igw
+  VpcInternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        !Ref VpcId
+      InternetGatewayId:
+        Ref: InternetGateway
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  InternetGatewayId:
+    Value: !Ref InternetGateway
+    Description: Internet Gateway ID

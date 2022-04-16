@@ -1,0 +1,88 @@
+# ---------------------------------------------------------
+# ネットワーク編 パブリックサブネット
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Public Subnet Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+  InternetGatewayId:
+    Description: Internet Gateway ID
+    Type: String
+  AvailabilityZoneNo:
+    Description: Aveilability Zone Number
+    Type: Number
+    Default: 0
+  CidrBlock:
+    Description: CIDR Block
+    Type: String
+    Default: 10.0.0.0/24
+
+Resources:
+  # -----------------------------------------------------------------
+  # パブリックサブネット作成
+  # -----------------------------------------------------------------
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        !Ref VpcId
+      AvailabilityZone:
+        !Select [!Ref AvailabilityZoneNo, !GetAZs  ""]
+      CidrBlock:
+        !Ref CidrBlock
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${System}-subnet-public-${AvailabilityZoneNo}
+        - Key: Type
+          Value: Public
+
+  # -----------------------------------------------------------------
+  # ルートテーブル
+  # -----------------------------------------------------------------
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub ${System}-route-table-${AvailabilityZoneNo}
+
+  # -----------------------------------------------------------------
+  # サブネットへルート紐付け
+  # -----------------------------------------------------------------
+  RouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: RouteTable
+      SubnetId:
+        Ref: PublicSubnet
+
+  # -----------------------------------------------------------------
+  # ルートテーブルのデフォルトルート
+  # -----------------------------------------------------------------
+  DefaultRouteTable:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        !Ref InternetGatewayId
+
+Outputs:
+  PublicSubnetId:
+    Value: !Ref PublicSubnet
+    Description: Public Subnet ID

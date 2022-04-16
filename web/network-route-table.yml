@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Route Table Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
+  RouteTableName:
+    Description: Route Table Name
+    Type: String
+    Default: template-route-table
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  # -------------------------------------------------------
+  # ルートテーブル作成
+  # -------------------------------------------------------
+  templateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Ref RouteTableName
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  PublicSubnetId:
+    Value: !Ref templateRouteTable
+    Description: Route Table ID
