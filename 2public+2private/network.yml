@@ -8,6 +8,11 @@ Description: Public x2 Network
 # パラメータ
 # ---------------------------------------------------------
 Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+    
   VpcTemplateUrl:
     Description: VPC template URL
     Type: String

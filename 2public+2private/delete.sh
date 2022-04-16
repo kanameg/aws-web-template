@@ -1,15 +1,15 @@
 #!/bin/bash
 
-STACKNAME=tempalte-network
-S3URL=s3://template-bucket-template/template/
+STACK_NAME=tempalte-network
+S3_URL=s3://template-bucket-template/template/
 
 # テンプレートファイル削除
-#aws s3 rm ${S3URL} --recursive
+aws s3 rm ${S3_URL} --recursive
 
 # スタック削除
 aws cloudformation delete-stack \
---stack-name ${STACKNAME}
+--stack-name ${STACK_NAME}
 
 # スタックの削除待ち
 aws cloudformation wait stack-delete-complete \
---stack-name ${STACKNAME}
+--stack-name ${STACK_NAME}
