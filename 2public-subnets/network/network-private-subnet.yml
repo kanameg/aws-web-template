@@ -64,7 +64,7 @@ Resources:
         !Ref VpcId
       Tags:
         - Key: Name
-          Value: !Sub ${System}-rtb-{Function}-${AvailabilityZoneNo}
+          Value: !Sub ${System}-rtb-${Function}-${AvailabilityZoneNo}
 
   # -----------------------------------------------------------------
   # サブネットへルート紐付け
@@ -75,7 +75,7 @@ Resources:
       RouteTableId:
         Ref: RouteTable
       SubnetId:
-        Ref: PublicSubnet
+        Ref: PrivateSubnet
 
   # # -----------------------------------------------------------------
   # # ルートテーブルのデフォルトルート
