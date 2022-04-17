@@ -6,7 +6,7 @@ ROOT_TEMPLATE=./network.yml
 STACK_NAME=${SYSTEM}-network
 
 # テンプレートファイルをコピー
-aws s3 cp ../network ${S3_URL} --recursive
+aws s3 cp ../network/ ${S3_URL}network/ --recursive
 
 # スタックの作成
 aws cloudformation create-stack \

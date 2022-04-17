@@ -12,7 +12,7 @@ Parameters:
     Description: System Name
     Type: String
     Default: template
-
+  
   VpcTemplateUrl:
     Description: VPC template URL
     Type: String
@@ -38,10 +38,10 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-private-subnet.yml
 
-  SecurityGroupTemplateUrl:
-    Description: Security Group template URL
+  BastionSecurityGroupTemplateUrl:
+    Description: Bastion Security Group template URL
     Type: String
-    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-security-group.yml
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-security-group-bastion.yml
 
 
 # ---------------------------------------------------------
@@ -162,10 +162,21 @@ Resources:
   BastionSecurityGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref SecurityGroupTemplateUrl
+      TemplateURL: !Ref BastionSecurityGroupTemplateUrl
       Parameters: 
         System: template
         Function: bastion
         VpcId: !GetAtt VPC.Outputs.VpcId
-        AllowedIp: 0.0.0.0/0
     DependsOn: PrivateSubnet1
+  
+  # # ----------------------------------
+  # # 踏み台用セキュリティグループ 作成
+  # # ----------------------------------
+  # BastionSecurityGroup:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: !Ref SecurityGroupTemplateUrl
+  #     Parameters: 
+  #       System: template
+  #       Function: bastion
+  #   DependsOn: PrivateSubnet1

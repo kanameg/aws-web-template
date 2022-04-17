@@ -1,5 +1,5 @@
 # ---------------------------------------------------------
-# ネットワーク編 セキュリティグループ
+# ネットワーク編 セキュリティグループ（踏み台用）
 # ---------------------------------------------------------
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Network Security Group Template
@@ -19,7 +19,7 @@ Parameters:
   VpcId:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
-    
+
 # ---------------------------------------------------------
 # リソース
 # ---------------------------------------------------------
@@ -37,15 +37,15 @@ Resources:
   # -------------------------------------------------------
   # Ingress セキュリティルールを作成 ※カスタマイズ
   # -------------------------------------------------------
-  # SecurityGroupIngress:
-  #   Type: AWS::EC2::SecurityGroupIngress
-  #   Properties:
-  #     Description: SSH Port
-  #     IpProtocol: tcp
-  #     CidrIp: 0.0.0.0/0
-  #     FromPort: 22
-  #     ToPort: 22
-  #     GroupId: !GetAtt SecurityGroup.GroupId
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: SSH Port
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 22
+      ToPort: 22
+      GroupId: !GetAtt SecurityGroup.GroupId
 
 # ---------------------------------------------------------
 # アウトプット
