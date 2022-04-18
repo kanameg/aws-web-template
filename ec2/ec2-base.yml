@@ -25,7 +25,7 @@ Parameters:
   InstanceType:
     Description: EC2 Instance Type
     Type: String
-    Default: t2.micro
+    Default: t3.micro
   KeyPair:
     Description: Key Pair
     Type: "AWS::EC2::KeyPair::KeyName"
