@@ -1,5 +1,5 @@
 # ---------------------------------------------------------
-# ネットワーク編 セキュリティグループルール （踏み台用）
+# ネットワーク編 セキュリティグループルール （ロードバランサー用）
 # ---------------------------------------------------------
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Network Security Group Rule Template
@@ -27,14 +27,24 @@ Resources:
   # -------------------------------------------------------
   # Ingress セキュリティルールを作成 ※カスタマイズ
   # -------------------------------------------------------
-  SecurityGroupIngress:
+  HttpSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      Description: SSH Port
+      Description: HTTP Port
       IpProtocol: tcp
       CidrIp: 0.0.0.0/0
-      FromPort: 22
-      ToPort: 22
+      FromPort: 80
+      ToPort: 80
+      GroupId: !Ref AssociateSecurityGroupId
+
+  HttpsSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: HTTPS Port
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 443
+      ToPort: 443
       GroupId: !Ref AssociateSecurityGroupId
 
   # -------------------------------------------------------

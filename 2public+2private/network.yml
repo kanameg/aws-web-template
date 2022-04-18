@@ -53,6 +53,11 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-app.yml
 
+  SecurityGroupRuleElbTemplateUrl:
+    Description: Security Group Rule Elb template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-elb.yml
+
 # ---------------------------------------------------------
 # リソース
 # ---------------------------------------------------------
@@ -179,6 +184,19 @@ Resources:
     DependsOn: PublicSubnet1
 
   # ----------------------------------
+  # ロードバランサー用セキュリティグループ 作成
+  # ----------------------------------
+  ElbSecurityGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupTemplateUrl
+      Parameters: 
+        System: template
+        Function: elb
+        VpcId: !GetAtt VPC.Outputs.VpcId
+    DependsOn: PrivateSubnet1
+
+  # ----------------------------------
   # アプリケーション用セキュリティグループ 作成
   # ----------------------------------
   AppSecurityGroup:
@@ -207,13 +225,26 @@ Resources:
   # ----------------------------------
   # アプリケーション用セキュリティグループルール作成
   # ----------------------------------
+  ElbSecurityGroupRule:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupRuleElbTemplateUrl
+      Parameters: 
+        System: template
+        Function: elb
+        AssociateSecurityGroupId: !GetAtt ElbSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: ElbSecurityGroup
+
+  # ----------------------------------
+  # アプリケーション用セキュリティグループルール作成
+  # ----------------------------------
   AppSecurityGroupRule:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref SecurityGroupRuleAppTemplateUrl
       Parameters: 
         System: template
-        Function: bastion
+        Function: app
         AssociateSecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
         SshSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
     DependsOn: AppSecurityGroup

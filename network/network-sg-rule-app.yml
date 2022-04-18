@@ -58,10 +58,10 @@ Resources:
 # ---------------------------------------------------------
 # アウトプット
 # ---------------------------------------------------------
-Outputs:
-  SecurityGroupIngressId:
-    Value: !Ref SecurityGroupIngress
-    Description: Security Group Ingress ID
+# Outputs:
+#   SecurityGroupIngressId:
+#     Value: !Ref SecurityGroupIngress
+#     Description: Security Group Ingress ID
 
   # SecurityGroupEgressId:
   #   Value: !Ref SecurityGroupEgress
