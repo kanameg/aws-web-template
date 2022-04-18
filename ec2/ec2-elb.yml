@@ -1,0 +1,91 @@
+# ---------------------------------------------------------
+# EC2編 ロードバランサー (ALB)
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AWS EC2 Load Balancer Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  Function:
+    Description: Function Name
+    Type: String
+    Default: ""
+  SubnetIds:
+    Description: List of Subnet Id
+    Type: List<AWS::EC2::Subnet::Id>
+  SecurityGoupId:
+    Description: Security Group Id
+    Type: AWS::EC2::SecurityGroup::Id
+  
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  AlbTargetGroup: 
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${System}-elb-${Function}-tg
+      VpcId: !Ref VpcId
+      Targets:
+        - Id: !Select ["0", !Ref TargetInstances]
+          Port: 80
+      HealthCheckProtocol: HTTP
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      HealthCheckTimeoutSeconds: 5
+      HealthCheckIntervalSeconds: 30
+      Matcher: 
+        HttpCode: 200
+
+  AlbLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${System}-elb-${Function}
+      Type: application
+      IpAddressType: ipv4
+      SecurityGroups: !Ref SecurityGoupId
+      Subnets: !Ref SubnetIds
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: "deletion_protection.enabled"
+          Value: false
+        - Key: "idle_timeout.timeout_seconds"
+          Value: 60
+      Tags: 
+        - Key: Name
+          Value: !Sub ${System}-elb-${Function}
+
+  AlbHttpListener: 
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+      DefaultActions: 
+        - TargetGroupArn: !Ref AlbTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref AlbLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  AlbHttpsListener: 
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+      DefaultActions: 
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref InternetALB
+      Port: 443
+      Protocol: HTTPS
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  LoadBalancerId:
+    Value: !Ref LoadBalancer
+    Description: ALB Load Balancer ID
+    

@@ -1,12 +1,14 @@
 #!/bin/bash
 
 SYSTEM=tempalte
-S3_URL=s3://template-bucket-template/template/
+S3_URL=s3://template-bucket-template/template
 ROOT_TEMPLATE=./network.yml
 STACK_NAME=${SYSTEM}-network
 
-# テンプレートファイルをコピー
-aws s3 cp ../network/ ${S3_URL}network/ --recursive
+# テンプレートファイルを転送
+aws s3 cp ../network/ ${S3_URL}/network/ --recursive
+aws s3 cp ../ec2/ ${S3_URL}/ec2/ --recursive
+
 
 # スタックの更新
 aws cloudformation update-stack \

@@ -58,6 +58,24 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-elb.yml
 
+  # -------------------------------------------------------
+  # ここからアプリケーション
+  # -------------------------------------------------------
+  BastionEc2TemplateUrl:
+    Description: Bastion EC2 template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/ec2-bastion.yml
+
+  BaseEc2TemplateUrl:
+    Description: Base EC2 template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/ec2-base.yml
+
+  ElbEc2TemplateUrl:
+    Description: ELB EC2 template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/ec2-elb.yml
+
 # ---------------------------------------------------------
 # リソース
 # ---------------------------------------------------------
@@ -223,7 +241,7 @@ Resources:
     DependsOn: BastionSecurityGroup
 
   # ----------------------------------
-  # アプリケーション用セキュリティグループルール作成
+  # ロードバランサー用セキュリティグループルール作成
   # ----------------------------------
   ElbSecurityGroupRule:
     Type: AWS::CloudFormation::Stack
@@ -247,4 +265,43 @@ Resources:
         Function: app
         AssociateSecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
         SshSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: AppSecurityGroup
+
+
+  # -------------------------------------------------------
+  # ここからアプリケーション
+  # -------------------------------------------------------
+  BastionEc2Instanace:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref BastionEc2TemplateUrl
+      Parameters: 
+        System: template
+        KeyPair: template-keypair
+        SubnetId: !GetAtt PublicSubnet1.Outputs.PublicSubnetId
+        SecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: BastionSecurityGroup
+
+  WebEc2Instanace1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref BaseEc2TemplateUrl
+      Parameters:
+        System: template
+        InstanceName: web-0
+        KeyPair: template-keypair
+        SubnetId: !GetAtt PrivateSubnet1.Outputs.PrivateSubnetId
+        SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: AppSecurityGroup
+
+  WebEc2Instanace2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref BaseEc2TemplateUrl
+      Parameters:
+        System: template
+        InstanceName: web-1
+        KeyPair: template-keypair
+        SubnetId: !GetAtt PrivateSubnet2.Outputs.PrivateSubnetId
+        SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
     DependsOn: AppSecurityGroup
