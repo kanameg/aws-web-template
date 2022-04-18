@@ -1,0 +1,68 @@
+# ---------------------------------------------------------
+# ネットワーク編 セキュリティグループルール （アプリケーション用）
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Network Security Group Rule Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+  Function:
+    Description: Function Name
+    Type: String
+    Default: ""
+  AssociateSecurityGroupId:
+    Description: Associate Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id
+  # ------------- ここからカスタマイズ --------------------
+  SshSecurityGroupId:
+    Description: Associate Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id  
+  
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  # -------------------------------------------------------
+  # Ingress セキュリティルールを作成 ※カスタマイズ
+  # -------------------------------------------------------
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: SSH Access from Bastion
+      SourceSecurityGroupId: !Ref SshSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      GroupId: !Ref AssociateSecurityGroupId
+
+  # -------------------------------------------------------
+  # Egress セキュリティルールを作成 ※カスタマイズ
+  # -------------------------------------------------------
+  # SecurityGroupEgress:
+  #   Type: AWS::EC2::SecurityGroupEgress
+  #   Properties:
+  #     Description: SSH Port
+  #     IpProtocol: tcp
+  #     CidrIp: 0.0.0.0/0
+  #     FromPort: 22
+  #     ToPort: 22
+  #     GroupId: !GetAtt SecurityGroup.GroupId
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  SecurityGroupIngressId:
+    Value: !Ref SecurityGroupIngress
+    Description: Security Group Ingress ID
+
+  # SecurityGroupEgressId:
+  #   Value: !Ref SecurityGroupEgress
+  #   Description: Security Group Egress ID

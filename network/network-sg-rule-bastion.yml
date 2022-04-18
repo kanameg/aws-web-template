@@ -1,8 +1,8 @@
 # ---------------------------------------------------------
-# ネットワーク編 セキュリティグループ（踏み台用）
+# ネットワーク編 セキュリティグループルール （踏み台用）
 # ---------------------------------------------------------
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Network Security Group Template
+Description: Network Security Group Rule Template
 
 # ---------------------------------------------------------
 # パラメータ
@@ -16,24 +16,14 @@ Parameters:
     Description: Function Name
     Type: String
     Default: ""
-  VpcId:
-    Description: VPC ID
-    Type: AWS::EC2::VPC::Id
+  AssociateSecurityGroupId:
+    Description: Associate Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id
 
 # ---------------------------------------------------------
 # リソース
 # ---------------------------------------------------------
 Resources:
-  # -------------------------------------------------------
-  # セキュリティグループを作成
-  # -------------------------------------------------------
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties: 
-      VpcId: !Ref VpcId
-      GroupDescription: !Sub Security Group attached to ${Function}
-      GroupName: !Sub ${System}-sg-${Function}
-
   # -------------------------------------------------------
   # Ingress セキュリティルールを作成 ※カスタマイズ
   # -------------------------------------------------------
@@ -45,12 +35,29 @@ Resources:
       CidrIp: 0.0.0.0/0
       FromPort: 22
       ToPort: 22
-      GroupId: !GetAtt SecurityGroup.GroupId
+      GroupId: !Ref AssociateSecurityGroupId
+
+  # -------------------------------------------------------
+  # Egress セキュリティルールを作成 ※カスタマイズ
+  # -------------------------------------------------------
+  # SecurityGroupEgress:
+  #   Type: AWS::EC2::SecurityGroupEgress
+  #   Properties:
+  #     Description: SSH Port
+  #     IpProtocol: tcp
+  #     CidrIp: 0.0.0.0/0
+  #     FromPort: 22
+  #     ToPort: 22
+  #     GroupId: !GetAtt SecurityGroup.GroupId
 
 # ---------------------------------------------------------
 # アウトプット
 # ---------------------------------------------------------
 Outputs:
-  SecurityGroupId:
-    Value: !Ref SecurityGroup
-    Description: Security Group ID
+  SecurityGroupIngressId:
+    Value: !Ref SecurityGroupIngress
+    Description: Security Group Ingress ID
+
+  # SecurityGroupEgressId:
+  #   Value: !Ref SecurityGroupEgress
+  #   Description: Security Group Egress ID

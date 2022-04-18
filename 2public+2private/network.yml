@@ -38,11 +38,20 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-private-subnet.yml
 
-  BastionSecurityGroupTemplateUrl:
-    Description: Bastion Security Group template URL
+  SecurityGroupTemplateUrl:
+    Description: Security Group template URL
     Type: String
-    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-security-group-bastion.yml
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-security-group.yml
 
+  SecurityGroupRuleBastionTemplateUrl:
+    Description: Security Group Rule Bastion template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-bastion.yml
+
+  SecurityGroupRuleAppTemplateUrl:
+    Description: Security Group Rule App template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-app.yml
 
 # ---------------------------------------------------------
 # リソース
@@ -162,21 +171,49 @@ Resources:
   BastionSecurityGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref BastionSecurityGroupTemplateUrl
+      TemplateURL: !Ref SecurityGroupTemplateUrl
       Parameters: 
         System: template
         Function: bastion
         VpcId: !GetAtt VPC.Outputs.VpcId
+    DependsOn: PublicSubnet1
+
+  # ----------------------------------
+  # アプリケーション用セキュリティグループ 作成
+  # ----------------------------------
+  AppSecurityGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupTemplateUrl
+      Parameters: 
+        System: template
+        Function: app
+        VpcId: !GetAtt VPC.Outputs.VpcId
     DependsOn: PrivateSubnet1
-  
-  # # ----------------------------------
-  # # 踏み台用セキュリティグループ 作成
-  # # ----------------------------------
-  # BastionSecurityGroup:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Ref SecurityGroupTemplateUrl
-  #     Parameters: 
-  #       System: template
-  #       Function: bastion
-  #   DependsOn: PrivateSubnet1
+
+  # ----------------------------------
+  # 踏み台用セキュリティグループルール作成
+  # ----------------------------------
+  BastionSecurityGroupRule:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupRuleBastionTemplateUrl
+      Parameters: 
+        System: template
+        Function: bastion
+        AssociateSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: BastionSecurityGroup
+
+  # ----------------------------------
+  # アプリケーション用セキュリティグループルール作成
+  # ----------------------------------
+  AppSecurityGroupRule:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SecurityGroupRuleAppTemplateUrl
+      Parameters: 
+        System: template
+        Function: bastion
+        AssociateSecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
+        SshSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: AppSecurityGroup
