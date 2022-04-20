@@ -21,8 +21,11 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
   # ------------- ここからカスタマイズ --------------------
   SshSecurityGroupId:
-    Description: Associate Security Group ID
-    Type: AWS::EC2::SecurityGroup::Id  
+    Description: SSH Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id 
+  HttpSecurityGroupId:
+    Description: HTTP Security Group ID
+    Type: AWS::EC2::SecurityGroup::Id 
   
 
 # ---------------------------------------------------------
@@ -32,7 +35,7 @@ Resources:
   # -------------------------------------------------------
   # Ingress セキュリティルールを作成 ※カスタマイズ
   # -------------------------------------------------------
-  SecurityGroupIngress:
+  SshSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: SSH Access from Bastion
@@ -40,6 +43,16 @@ Resources:
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
+      GroupId: !Ref AssociateSecurityGroupId
+
+  HttpSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: SSH Access from ELB
+      SourceSecurityGroupId: !Ref HttpSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
       GroupId: !Ref AssociateSecurityGroupId
 
   # -------------------------------------------------------

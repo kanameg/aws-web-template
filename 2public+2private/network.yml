@@ -265,6 +265,7 @@ Resources:
         Function: app
         AssociateSecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
         SshSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+        HttpSecurityGroupId: !GetAtt ElbSecurityGroup.Outputs.SecurityGroupId
     DependsOn: AppSecurityGroup
 
 
@@ -280,7 +281,7 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PublicSubnet1.Outputs.PublicSubnetId
         SecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
-    DependsOn: BastionSecurityGroup
+    DependsOn: [BastionSecurityGroup, PublicSubnet1]
 
   WebEc2Instanace1:
     Type: AWS::CloudFormation::Stack
@@ -292,7 +293,7 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PrivateSubnet1.Outputs.PrivateSubnetId
         SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
-    DependsOn: AppSecurityGroup
+    DependsOn: [AppSecurityGroup, PrivateSubnet1]
 
   WebEc2Instanace2:
     Type: AWS::CloudFormation::Stack
@@ -304,4 +305,17 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PrivateSubnet2.Outputs.PrivateSubnetId
         SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
-    DependsOn: AppSecurityGroup
+    DependsOn: [AppSecurityGroup, PrivateSubnet2]
+
+  ElbEc2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref ElbEc2TemplateUrl
+      Parameters:
+        System: template
+        Function: web
+        VpcId: !GetAtt VPC.Outputs.VpcId
+        SubnetIds: !Join [",", [!GetAtt PublicSubnet1.Outputs.PublicSubnetId, !GetAtt PublicSubnet2.Outputs.PublicSubnetId]]
+        TargetInstances: !Join [",", [!GetAtt WebEc2Instanace1.Outputs.Ec2InstanceId, !GetAtt WebEc2Instanace2.Outputs.Ec2InstanceId]]
+        SecurityGoupIds: !Join [",", [!GetAtt ElbSecurityGroup.Outputs.SecurityGroupId]]
+    DependsOn: [ElbSecurityGroup, WebEc2Instanace1, WebEc2Instanace2]

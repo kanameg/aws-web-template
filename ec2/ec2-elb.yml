@@ -16,12 +16,18 @@ Parameters:
     Description: Function Name
     Type: String
     Default: ""
+  VpcId:
+    Description: VPC ID
+    Type: AWS::EC2::VPC::Id
   SubnetIds:
-    Description: List of Subnet Id
-    Type: List<AWS::EC2::Subnet::Id>
-  SecurityGoupId:
-    Description: Security Group Id
-    Type: AWS::EC2::SecurityGroup::Id
+    Description: List of Subnet ID
+    Type: List<String>
+  TargetInstances:
+    Description: List of Instance IDs
+    Type: List<String>
+  SecurityGoupIds:
+    Description: Security Group IDs
+    Type: List<String>
   
 # ---------------------------------------------------------
 # リソース
@@ -32,8 +38,12 @@ Resources:
     Properties:
       Name: !Sub ${System}-elb-${Function}-tg
       VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 80
       Targets:
         - Id: !Select ["0", !Ref TargetInstances]
+          Port: 80
+        - Id: !Select ["1", !Ref TargetInstances]
           Port: 80
       HealthCheckProtocol: HTTP
       HealthyThresholdCount: 5
@@ -49,7 +59,7 @@ Resources:
       Name: !Sub ${System}-elb-${Function}
       Type: application
       IpAddressType: ipv4
-      SecurityGroups: !Ref SecurityGoupId
+      SecurityGroups: !Ref SecurityGoupIds
       Subnets: !Ref SubnetIds
       Scheme: internet-facing
       LoadBalancerAttributes:
@@ -71,21 +81,21 @@ Resources:
       Port: 80
       Protocol: HTTP
 
-  AlbHttpsListener: 
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties: 
-      DefaultActions: 
-        - TargetGroupArn: !Ref TargetGroup
-          Type: forward
-      LoadBalancerArn: !Ref InternetALB
-      Port: 443
-      Protocol: HTTPS
+  # AlbHttpsListener: 
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  #   Properties: 
+  #     DefaultActions: 
+  #       - TargetGroupArn: !Ref AlbTargetGroup
+  #         Type: forward
+  #     LoadBalancerArn: !Ref AlbLoadBalancer
+  #     Port: 443
+  #     Protocol: HTTPS
 
 # ---------------------------------------------------------
 # アウトプット
 # ---------------------------------------------------------
 Outputs:
   LoadBalancerId:
-    Value: !Ref LoadBalancer
+    Value: !Ref AlbLoadBalancer
     Description: ALB Load Balancer ID
     
