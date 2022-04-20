@@ -319,3 +319,21 @@ Resources:
         TargetInstances: !Join [",", [!GetAtt WebEc2Instanace1.Outputs.Ec2InstanceId, !GetAtt WebEc2Instanace2.Outputs.Ec2InstanceId]]
         SecurityGoupIds: !Join [",", [!GetAtt ElbSecurityGroup.Outputs.SecurityGroupId]]
     DependsOn: [ElbSecurityGroup, WebEc2Instanace1, WebEc2Instanace2]
+
+Outputs: 
+  BastionEc2InstanacePublicIpAddress:
+    Description: Bastion Instanace Public IP Addresss
+    Value: !GetAtt BastionEc2Instanace.Outputs.Ec2InstanceLPublicIp
+  BastionEc2InstanacePrivateIpAddress:
+    Description: Bastion Instanace Private IP Addresss
+    Value: !GetAtt BastionEc2Instanace.Outputs.Ec2InstanceLPrivateIp
+  WebEc2Instanace1IpAddress:
+    Description: Web Instanace 1 Private IP Addresss
+    Value: !GetAtt WebEc2Instanace1.Outputs.Ec2InstanceLPrivateIp
+  WebEc2Instanace2IpAddress:
+    Description: Web Instanace 2 Private IP Addresss
+    Value: !GetAtt WebEc2Instanace2.Outputs.Ec2InstanceLPrivateIp
+  ElbEc2DnsName:
+    Description: Load Blancer DNS Name
+    Value: !GetAtt ElbEc2.Outputs.AlbLoadBalancerDnsName
+  

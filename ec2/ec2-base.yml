@@ -59,6 +59,16 @@ Resources:
       Tags: 
         - Key: Name
           Value: !Sub ${System}-ec2-${InstanceName}
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum -y update
+          # venv環境構築
+          python3 -m venv /tmp/venv/flask
+          source /tmp/venv/flask/bin/activate
+          pip install -U pip
+          # flaskインストール
+          pip install flask
 
 # ---------------------------------------------------------
 # アウトプット
@@ -67,4 +77,10 @@ Outputs:
   Ec2InstanceId:
     Value: !Ref Ec2Instance
     Description: EC2 Instance ID
+  Ec2InstanceLPrivateIp:
+    Value: !GetAtt Ec2Instance.PrivateIp
+    Description: Ec2Instance Private IP Address
+  # Ec2InstanceLPublicIp:
+  #   Value: !GetAtt Ec2Instance.PublicIp
+  #   Description: Ec2Instance Public IP Address
     

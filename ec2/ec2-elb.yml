@@ -95,7 +95,11 @@ Resources:
 # アウトプット
 # ---------------------------------------------------------
 Outputs:
-  LoadBalancerId:
+  AlbLoadBalancerId:
     Value: !Ref AlbLoadBalancer
     Description: ALB Load Balancer ID
+  AlbLoadBalancerDnsName:
+    Value: !GetAtt AlbLoadBalancer.DNSName
+    Description: ALB Load Balancer DNS Name
+    
     
