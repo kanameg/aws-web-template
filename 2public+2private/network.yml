@@ -53,8 +53,8 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-app.yml
 
-  SecurityGroupRuleElbTemplateUrl:
-    Description: Security Group Rule Elb template URL
+  SecurityGroupRuleLoadBalancerTemplateUrl:
+    Description: Security Group Rule Load Balancer template URL
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/network/network-sg-rule-elb.yml
 
@@ -71,8 +71,8 @@ Parameters:
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/ec2-base.yml
 
-  ElbEc2TemplateUrl:
-    Description: ELB EC2 template URL
+  LoadBalancerTemplateUrl:
+    Description: Load Balancer EC2 template URL
     Type: String
     Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/ec2-elb.yml
 
@@ -204,7 +204,7 @@ Resources:
   # ----------------------------------
   # ロードバランサー用セキュリティグループ 作成
   # ----------------------------------
-  ElbSecurityGroup:
+  LoadBalancerSecurityGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref SecurityGroupTemplateUrl
@@ -243,15 +243,15 @@ Resources:
   # ----------------------------------
   # ロードバランサー用セキュリティグループルール作成
   # ----------------------------------
-  ElbSecurityGroupRule:
+  LoadBalancerSecurityGroupRule:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref SecurityGroupRuleElbTemplateUrl
+      TemplateURL: !Ref SecurityGroupRuleLoadBalancerTemplateUrl
       Parameters: 
         System: template
         Function: elb
-        AssociateSecurityGroupId: !GetAtt ElbSecurityGroup.Outputs.SecurityGroupId
-    DependsOn: ElbSecurityGroup
+        AssociateSecurityGroupId: !GetAtt LoadBalancerSecurityGroup.Outputs.SecurityGroupId
+    DependsOn: LoadBalancerSecurityGroup
 
   # ----------------------------------
   # アプリケーション用セキュリティグループルール作成
@@ -265,7 +265,7 @@ Resources:
         Function: app
         AssociateSecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
         SshSecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
-        HttpSecurityGroupId: !GetAtt ElbSecurityGroup.Outputs.SecurityGroupId
+        HttpSecurityGroupId: !GetAtt LoadBalancerSecurityGroup.Outputs.SecurityGroupId
     DependsOn: AppSecurityGroup
 
 
@@ -307,18 +307,18 @@ Resources:
         SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
     DependsOn: [AppSecurityGroup, PrivateSubnet2]
 
-  ElbEc2:
+  LoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref ElbEc2TemplateUrl
+      TemplateURL: !Ref LoadBalancerTemplateUrl
       Parameters:
         System: template
         Function: web
         VpcId: !GetAtt VPC.Outputs.VpcId
         SubnetIds: !Join [",", [!GetAtt PublicSubnet1.Outputs.PublicSubnetId, !GetAtt PublicSubnet2.Outputs.PublicSubnetId]]
         TargetInstances: !Join [",", [!GetAtt WebEc2Instanace1.Outputs.Ec2InstanceId, !GetAtt WebEc2Instanace2.Outputs.Ec2InstanceId]]
-        SecurityGoupIds: !Join [",", [!GetAtt ElbSecurityGroup.Outputs.SecurityGroupId]]
-    DependsOn: [ElbSecurityGroup, WebEc2Instanace1, WebEc2Instanace2]
+        SecurityGoupIds: !Join [",", [!GetAtt LoadBalancerSecurityGroup.Outputs.SecurityGroupId]]
+    DependsOn: [LoadBalancerSecurityGroup, WebEc2Instanace1, WebEc2Instanace2]
 
 Outputs: 
   BastionEc2InstanacePublicIpAddress:
@@ -333,7 +333,7 @@ Outputs:
   WebEc2Instanace2IpAddress:
     Description: Web Instanace 2 Private IP Addresss
     Value: !GetAtt WebEc2Instanace2.Outputs.Ec2InstanceLPrivateIp
-  ElbEc2DnsName:
+  LoadBalancerDnsName:
     Description: Load Blancer DNS Name
-    Value: !GetAtt ElbEc2.Outputs.AlbLoadBalancerDnsName
+    Value: !GetAtt LoadBalancer.Outputs.LoadBalancerDnsName
   
