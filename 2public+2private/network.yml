@@ -61,6 +61,11 @@ Parameters:
   # -------------------------------------------------------
   # ここからアプリケーション
   # -------------------------------------------------------
+  SsmInstanceProfileTemplateUrl:
+    Description: SSM Instance Profile template URL
+    Type: String
+    Default: https://template-bucket-template.s3.ap-northeast-3.amazonaws.com/template/ec2/iam-role-ssm.yml
+
   BastionEc2TemplateUrl:
     Description: Bastion EC2 template URL
     Type: String
@@ -272,6 +277,13 @@ Resources:
   # -------------------------------------------------------
   # ここからアプリケーション
   # -------------------------------------------------------
+  SsmInstancePorile:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SsmInstanceProfileTemplateUrl
+      Parameters: 
+        System: template
+
   BastionEc2Instanace:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -281,6 +293,7 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PublicSubnet1.Outputs.PublicSubnetId
         SecurityGroupId: !GetAtt BastionSecurityGroup.Outputs.SecurityGroupId
+        InstanceProfile: !GetAtt SsmInstancePorile.Outputs.SsmInstanceProfileId
     DependsOn: [BastionSecurityGroup, PublicSubnet1]
 
   WebEc2Instanace1:
@@ -293,6 +306,7 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PrivateSubnet1.Outputs.PrivateSubnetId
         SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
+        InstanceProfile: !GetAtt SsmInstancePorile.Outputs.SsmInstanceProfileId
     DependsOn: [AppSecurityGroup, PrivateSubnet1]
 
   WebEc2Instanace2:
@@ -305,6 +319,7 @@ Resources:
         KeyPair: template-keypair
         SubnetId: !GetAtt PrivateSubnet2.Outputs.PrivateSubnetId
         SecurityGroupId: !GetAtt AppSecurityGroup.Outputs.SecurityGroupId
+        InstanceProfile: !GetAtt SsmInstancePorile.Outputs.SsmInstanceProfileId
     DependsOn: [AppSecurityGroup, PrivateSubnet2]
 
   LoadBalancer:

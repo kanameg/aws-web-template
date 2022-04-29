@@ -1,0 +1,55 @@
+# ---------------------------------------------------------
+# IAM編 SSM用 インスタンスプロファイル(Role)
+# ---------------------------------------------------------
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS SSM Role Instance Profile Template
+
+# ---------------------------------------------------------
+# パラメータ
+# ---------------------------------------------------------
+Parameters:
+  # -----------------------------------------------------------------
+  # システム
+  # -----------------------------------------------------------------
+  System:
+    Description: System Name
+    Type: String
+    Default: template
+
+# ---------------------------------------------------------
+# リソース
+# ---------------------------------------------------------
+Resources:
+  SsmAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service: 
+                - ec2.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  SsmInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - Ref: SsmAccessRole
+      InstanceProfileName: !Sub ${System}-ssm-instance-profile
+
+# ---------------------------------------------------------
+# アウトプット
+# ---------------------------------------------------------
+Outputs:
+  SsmInstanceProfileId:
+    Value: !Ref SsmInstanceProfile
+    Description: SSM Instance Profile
+    
+    

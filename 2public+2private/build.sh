@@ -13,6 +13,7 @@ aws s3 cp ../ec2/ ${S3_URL}/ec2/ --recursive
 aws cloudformation create-stack \
 --stack-name ${STACK_NAME} \
 --parameters ParameterKey=System,ParameterValue=${SYSTEM} \
+--capabilities CAPABILITY_NAMED_IAM \
 --template-body file://${ROOT_TEMPLATE}
 
 # 作成完了待ち

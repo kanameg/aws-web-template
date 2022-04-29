@@ -34,11 +34,14 @@ Parameters:
     Type: String
     Default: base
   SubnetId:
-    Description: Subnet Id
+    Description: Subnet ID
     Type: AWS::EC2::Subnet::Id
   SecurityGroupId:
-    Description: Security Group Id
+    Description: Security Group ID
     Type: AWS::EC2::SecurityGroup::Id
+  InstanceProfile:
+    Description: Instance Profile ID
+    Type: String
 
 # ---------------------------------------------------------
 # リソース
@@ -56,6 +59,7 @@ Resources:
             - !Ref SecurityGroupId
           DeviceIndex: 0
           SubnetId: !Ref SubnetId
+      IamInstanceProfile: !Ref InstanceProfile
       Tags: 
         - Key: Name
           Value: !Sub ${System}-ec2-${InstanceName}
